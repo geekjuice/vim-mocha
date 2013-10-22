@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Mocha
+clear
+NODE_ENV=test mocha -b --compilers coffee:coffee-script --reporter spec --recursive "$@"
