@@ -47,6 +47,7 @@ Note: [cortado](bin/cortado) is a sugar wrapper for a more complex `mocha` call.
 ## Work-in-Progress
 - Refactor `RunNearestSpec`
 - Allow configuration for `mocha` options i.e. `--recursive`, `--reporter dot`
+- Add exceptino for inside describe of another test (RunNearestSpec)
 
 Credits
 -------
