@@ -49,7 +49,7 @@ function! mocha#RunLastSpec()
 endfunction
 
 function! mocha#InSpecFile()
-  return match(expand("%"), "^test/") != -1 || match(expand("%"), "^spec/") != -1
+  return match(expand("%"),'\v.(js|coffee)$') != -1
 endfunction
 
 function! mocha#SetLastSpecCommand(spec)
@@ -61,8 +61,7 @@ function! mocha#GetNearestTest()
   let file = readfile(expand("%:p"))  "read current file
   let lineCount = 0                   "file line counter
   let lineDiff = 999                  "arbituary large number
-  " matches 'it' in both coffee and js (need to test...)
-  let descPattern='\v\_^\s*it\s*[(]*\s*[''"]{1}\zs[^''"]+\ze[''"]{1}'
+  let descPattern='\v\s*it\s*[(]?\s*([''"]{1})(.+)\1{1}'
   for line in file
     let lineCount += 1
     let match = match(line,descPattern)
@@ -75,7 +74,7 @@ function! mocha#GetNearestTest()
       " if closer test is found, cache new nearest test
       if(currentDiff <= lineDiff)
         let lineDiff = currentDiff
-        let s:nearestTest = matchstr(line,descPattern)
+        let s:nearestTest = substitute(matchlist(line,descPattern)[2],'\v([''"()])','(.{1})','g')
       endif
     endif
   endfor
