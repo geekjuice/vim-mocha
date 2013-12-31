@@ -1,9 +1,13 @@
-# mocha.vim
+# vim-mocha
 
 This is a lightweight Mocha runner for Vim.
 
 Based off of [Attamusc/vim-mocha](https://github.com/Attamusc/vim-mocha) and
 subsequently [thoughtbot/vim-rspec](https://github.com/thoughtbot/vim-rspec).
+
+
+__Use both RSpec and Mocha? Take a look at [vim-spec](https://github.com/geekjuice/vim-spec)!__
+
 
 ## Installation
 
