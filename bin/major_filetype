@@ -1,0 +1,16 @@
+#!/bin/bash
+# Find the majority filetype
+# OSX Version (use sed -rn for Linux)
+
+# Defaults: Ruby, Javascript, Coffeescript
+
+filetypes="coffee\|js"
+
+find . -type f                                  | \
+    tr '[:upper:]' '[:lower:]'                  | \
+    sed -En "s|.*/[^/]+\.($filetypes)$|\1|p"    | \
+    sort                                        | \
+    uniq -c                                     | \
+    sort -nr                                    | \
+    head -n 1                                   | \
+    awk "{ print \$2}"

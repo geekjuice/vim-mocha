@@ -1,62 +1,64 @@
+" Get file path
 let s:plugin_path = expand("<sfile>:p:h:h")
 
-if !exists("g:mocha_command")
-  let s:cmd = "mocha {spec}"
+" Set Javascript
+function! s:SetJavascriptCommand()
+  if !exists("g:mocha_js_command")
+    let s:cmd = "mocha {spec}"
+    call s:GUIRunning()
+  else
+    let g:spec_command = g:mocha_js_command
+  endif
+endfunction
 
+" Set Coffeescript
+function! s:SetCoffeescriptCommand()
+  if !exists("g:mocha_coffee_command")
+    let s:cmd = "mocha --compilers coffee:coffee-script {spec}"
+    call s:GUIRunning()
+  else
+    let g:spec_command = g:mocha_coffee_command
+  endif
+endfunction
+
+" Run GUI version or Terminal version
+function! s:GUIRunning()
   if has("gui_running") && has("gui_macvim")
-    let g:mocha_command = "silent !" . s:plugin_path . "/bin/run_in_os_x_terminal '" . s:cmd . "'"
+    let g:spec_command = "silent !" . s:plugin_path . "/bin/run_in_os_x_terminal '" . s:cmd . "'"
   else
-    let g:mocha_command = "!echo " . s:cmd . " && " . s:cmd
+    let g:spec_command = "!echo " . s:cmd . " && " . s:cmd
   endif
-endif
+endfunction
 
-function! mocha#RunAllSpecs()
-  if isdirectory('spec')
-    let l:spec = "spec"
+" Initial Spec Command
+function! s:SetInitialSpecCommand()
+  let l:spec = s:plugin_path . "/bin/major_filetype"
+  let l:filetype = system(l:spec)
+  if l:filetype =~ 'js'
+    call s:SetJavascriptCommand()
+  elseif l:filetype =~ 'coffee'
+    call s:SetCoffeescriptCommand()
   else
-    let l:spec = "test"
+    let g:spec_command = ""
   endif
-
-  call mocha#SetLastSpecCommand(l:spec)
-  call mocha#RunSpecs(l:spec)
 endfunction
 
-function! mocha#RunCurrentSpecFile()
-  if mocha#InSpecFile()
-    let l:spec = @%
-    call mocha#SetLastSpecCommand(l:spec)
-    call mocha#RunSpecs(l:spec)
+" Determine which command based on filetype
+function! s:GetCorrectCommand()
+  " Set default {mocha} command (javascript)
+  if &filetype ==? 'javascript'
+    call s:SetJavascriptCommand()
+  " Set default {mocha} command (coffeescript)
+  elseif &filetype ==? 'coffee'
+    call s:SetCoffeescriptCommand()
+  " Fallthrough default
   else
-    call mocha#RunLastSpec()
+    call s:SetInitialSpecCommand()
   endif
 endfunction
 
-function! mocha#RunNearestSpec()
-  if mocha#InSpecFile()
-    call mocha#GetNearestTest()
-    let l:spec = @% . " -g '" . s:nearestTest . "'"
-    call mocha#SetLastSpecCommand(l:spec)
-    call mocha#RunSpecs(l:spec)
-  else
-    call mocha#RunLastSpec()
-  endif
-endfunction
-
-function! mocha#RunLastSpec()
-  if exists("s:last_spec_command")
-    call mocha#RunSpecs(s:last_spec_command)
-  endif
-endfunction
-
-function! mocha#InSpecFile()
-  return match(expand("%"),'\v.(js|coffee)$') != -1
-endfunction
-
-function! mocha#SetLastSpecCommand(spec)
-  let s:last_spec_command = a:spec
-endfunction
-
-function! mocha#GetNearestTest()
+" Mocha Nearest Test
+function! s:GetNearestTest()
   let callLine = line (".")           "cursor line
   let file = readfile(expand("%:p"))  "read current file
   let lineCount = 0                   "file line counter
@@ -80,6 +82,66 @@ function! mocha#GetNearestTest()
   endfor
 endfunction
 
-function! mocha#RunSpecs(spec)
-  execute substitute(g:mocha_command, "{spec}", a:spec, "g")
+" All Specs
+function! RunAllSpecs()
+  if isdirectory('spec')
+    let l:spec = "spec"
+  elseif isdirectory('test')
+    let l:spec = "test"
+  else
+    let l:spec = ""
+  endif
+  call SetLastSpecCommand(l:spec)
+  call RunSpecs(l:spec)
 endfunction
+
+" Current File
+function! RunCurrentSpecFile()
+  if InSpecFile()
+    let l:spec = @%
+    call SetLastSpecCommand(l:spec)
+    call RunSpecs(l:spec)
+  else
+    call RunLastSpec()
+  endif
+endfunction
+
+" Nearest Spec
+function! RunNearestSpec()
+  if InSpecFile()
+    call s:GetNearestTest()
+    let l:spec = @% . " -g '" . s:nearestTest . "'"
+    call SetLastSpecCommand(l:spec)
+    call RunSpecs(l:spec)
+  else
+    call RunLastSpec()
+  endif
+endfunction
+
+" Last Spec
+function! RunLastSpec()
+  if exists("s:last_spec_command")
+    call RunSpecs(s:last_spec_command)
+  endif
+endfunction
+
+" Current Spec File Name
+function! InSpecFile()
+  return match(expand("%"),'\v(.js|.coffee)$') != -2
+endfunction
+
+" Cache Last Spec Command
+function! SetLastSpecCommand(spec)
+  let s:last_spec_command = a:spec
+endfunction
+
+" Spec Runner
+function! RunSpecs(spec)
+  call s:GetCorrectCommand()
+  if g:spec_command ==? ""
+    echom "No spec command specified."
+  else
+    execute substitute(g:spec_command, "{spec}", a:spec, "g")
+  end
+endfunction
+
