@@ -2,4 +2,10 @@
 
 # Mocha
 clear
-NODE_ENV=test mocha -b --compilers coffee:coffee-script --reporter spec --recursive "$@"
+NODE_ENV=test mocha \
+    --bail \
+    --compilers coffee:coffee-script/register \
+    --recursive \
+    --reporter spec \
+    --slow 100 \
+    "$@"

@@ -84,10 +84,10 @@ endfunction
 
 " All Specs
 function! RunAllSpecs()
-  if isdirectory('spec')
-    let l:spec = "spec"
-  elseif isdirectory('test')
+  if isdirectory('test')
     let l:spec = "test"
+  elseif isdirectory('spec')
+    let l:spec = "spec"
   else
     let l:spec = ""
   endif

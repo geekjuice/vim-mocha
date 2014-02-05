@@ -1,3 +1,7 @@
+## 2014-02-04
+* Update cortado and give test dir precedence over spec dir
+
+
 ## 2014-02-03
 * Extract newer version from vim-spec
 
