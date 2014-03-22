@@ -14,7 +14,7 @@ endfunction
 " Set Coffeescript
 function! s:SetCoffeescriptCommand()
   if !exists("g:mocha_coffee_command")
-    let s:cmd = "mocha --compilers coffee:coffee-script {spec}"
+    let s:cmd = "mocha --compilers 'coffee:coffee-script/register' {spec}"
     call s:GUIRunning()
   else
     let g:spec_command = g:mocha_coffee_command
