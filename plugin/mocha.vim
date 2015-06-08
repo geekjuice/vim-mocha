@@ -127,7 +127,7 @@ endfunction
 
 " Current Spec File Name
 function! InSpecFile()
-  return match(expand("%"),'\v(.js|.coffee)$') != -2
+  return match(expand("%"),'\v(.js|.coffee)$') != -1
 endfunction
 
 " Cache Last Spec Command
