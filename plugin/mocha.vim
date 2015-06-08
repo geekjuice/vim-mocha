@@ -127,7 +127,16 @@ endfunction
 
 " Current Spec File Name
 function! InSpecFile()
-  return match(expand("%"),'\v(.js|.coffee)$') != -1
+  " Not a js or coffee file
+  if match(expand('%'), '\v(.js|.coffee)$') == -1
+    return 0
+  endif
+
+  " Check for describe block
+  let l:contents = join(getline(1,'$'), "\n")
+  let l:jsRegex = '\v<describe(.\w+)?\s{-}\(.{-}[''"].{-}[''"]\s{-}, {-}function\s{-}\(.{-}\)'
+  let l:coffeeRegex = '\v<describe\s+[''"].{-}[''"]\s{-},\s+-\>'
+  return match(l:contents, l:coffeeRegex) != -1 || match(l:contents, l:jsRegex) != -1
 endfunction
 
 " Cache Last Spec Command
