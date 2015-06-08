@@ -63,7 +63,7 @@ function! s:GetNearestTest()
   let file = readfile(expand("%:p"))  "read current file
   let lineCount = 0                   "file line counter
   let lineDiff = 999                  "arbituary large number
-  let descPattern = '/\v<(it|describe|context)\s*\(?\s*[''"](.*)[''"]\s*,'
+  let descPattern = '\v<(it|describe|context)\s*\(?\s*[''"](.*)[''"]\s*,'
   for line in file
     let lineCount += 1
     let match = match(line,descPattern)
@@ -134,9 +134,8 @@ function! InSpecFile()
 
   " Check for describe block
   let l:contents = join(getline(1,'$'), "\n")
-  let l:jsRegex = '\v<describe(.\w+)?\s{-}\(.{-}[''"].{-}[''"]\s{-}, {-}function\s{-}\(.{-}\)'
-  let l:coffeeRegex = '\v<describe\s+[''"].{-}[''"]\s{-},\s+-\>'
-  return match(l:contents, l:coffeeRegex) != -1 || match(l:contents, l:jsRegex) != -1
+  let l:regex = '\v<describe\s*\(?\s*[''"](.*)[''"]\s*,'
+  return match(l:contents, l:regex) != -1
 endfunction
 
 " Cache Last Spec Command
