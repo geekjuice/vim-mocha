@@ -67,10 +67,6 @@ Note: [cortado](bin/cortado) is a sugar wrapper for a more complex `mocha` call.
 ## Notes
 * Allow configuration for `mocha` options i.e. `--recursive`, `--reporter dot`
 
-* __BUG__: Assertions with no name i.e. no attribute for `it` in mocha will fail
-  if trying to call nearest test `RunNearestSpec` as it depends on `it` having a
-  value
-
 * __BUG__: Last nearest test fails if below `it` call
 
 
