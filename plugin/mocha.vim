@@ -100,6 +100,7 @@ function! RunCurrentSpecFile()
   if InSpecFile()
     let l:spec = @%
     call SetLastSpecCommand(l:spec)
+    call SetLastSpecFile(@%)
     call RunSpecs(l:spec)
   else
     call RunLastSpec()
@@ -112,6 +113,8 @@ function! RunNearestSpec()
     call s:GetNearestTest()
     let l:spec = @% . " -g '" . s:nearestTest . "'"
     call SetLastSpecCommand(l:spec)
+    call SetLastSpecFile(@%)
+    call SetLastNearestSpec(l:spec)
     call RunSpecs(l:spec)
   else
     call RunLastSpec()
@@ -131,13 +134,20 @@ function! InSpecFile()
   if match(expand('%'), '\v(.js|.coffee)$') == -1
     return 0
   endif
-
   " Check for describe block
   let l:contents = join(getline(1,'$'), "\n")
   let l:regex = '\v<describe\s*\(?\s*[''"](.*)[''"]\s*,'
   return match(l:contents, l:regex) != -1
 endfunction
 
+" Store last spec name
+function! SetLastNearestSpec(nearestSpec)
+  let s:last_nearest_spec = a:nearestSpec
+endfunction
+" Store last spec file
+function! SetLastSpecFile(file)
+  let s:last_spec_file = a:file
+endfunction
 " Cache Last Spec Command
 function! SetLastSpecCommand(spec)
   let s:last_spec_command = a:spec
