@@ -63,7 +63,7 @@ function! s:GetNearestTest()
   let file = readfile(expand("%:p"))  "read current file
   let lineCount = 0                   "file line counter
   let lineDiff = 999                  "arbituary large number
-  let descPattern='\v\s*it\s*[(]?\s*([''"]{1})(.+)\1{1}'
+  let descPattern = '\v<(it|describe|context)\s*\(?\s*[''"](.*)[''"]\s*,'
   for line in file
     let lineCount += 1
     let match = match(line,descPattern)
@@ -127,7 +127,15 @@ endfunction
 
 " Current Spec File Name
 function! InSpecFile()
-  return match(expand("%"),'\v(.js|.coffee)$') != -2
+  " Not a js or coffee file
+  if match(expand('%'), '\v(.js|.coffee)$') == -1
+    return 0
+  endif
+
+  " Check for describe block
+  let l:contents = join(getline(1,'$'), "\n")
+  let l:regex = '\v<describe\s*\(?\s*[''"](.*)[''"]\s*,'
+  return match(l:contents, l:regex) != -1
 endfunction
 
 " Cache Last Spec Command
