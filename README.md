@@ -28,6 +28,12 @@ cd ~/.vim/bundle
 git clone git://github.com/geekjuice/vim-spec.git
 ```
 
+Using [vim-plug](https://github.com/junegunn/vim-plug)
+
+```vim
+Plug 'geekjuice/vim-mocha'
+```
+
 
 ## Example of key mappings
 
