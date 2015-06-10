@@ -100,9 +100,10 @@ function! RunCurrentSpecFile()
   if InSpecFile()
     let l:spec = @%
     call SetLastSpecCommand(l:spec)
+    call SetLastSpecFile(@%)
     call RunSpecs(l:spec)
   else
-    call RunLastSpec()
+    call RunLastSpecFile()
   endif
 endfunction
 
@@ -112,16 +113,11 @@ function! RunNearestSpec()
     call s:GetNearestTest()
     let l:spec = @% . " -g '" . s:nearestTest . "'"
     call SetLastSpecCommand(l:spec)
+    call SetLastSpecFile(@%)
+    call SetLastNearestSpec(l:spec)
     call RunSpecs(l:spec)
   else
-    call RunLastSpec()
-  endif
-endfunction
-
-" Last Spec
-function! RunLastSpec()
-  if exists("s:last_spec_command")
-    call RunSpecs(s:last_spec_command)
+    call RunLastNearestSpec()
   endif
 endfunction
 
@@ -131,16 +127,52 @@ function! InSpecFile()
   if match(expand('%'), '\v(.js|.coffee)$') == -1
     return 0
   endif
-
   " Check for describe block
   let l:contents = join(getline(1,'$'), "\n")
   let l:regex = '\v<describe\s*\(?\s*[''"](.*)[''"]\s*,'
   return match(l:contents, l:regex) != -1
 endfunction
 
+" Storing last commands
+" =====================
+
+" Store last spec name
+function! SetLastNearestSpec(nearestSpec)
+  let s:last_nearest_spec = a:nearestSpec
+endfunction
+
+" Store last spec file
+function! SetLastSpecFile(file)
+  let s:last_spec_file = a:file
+endfunction
+
 " Cache Last Spec Command
 function! SetLastSpecCommand(spec)
   let s:last_spec_command = a:spec
+endfunction
+
+" Running last commands
+" =====================
+
+" Run Last Nearest Spec
+function! RunLastNearestSpec()
+  if exists("s:last_nearest_spec")
+    call RunSpecs(s:last_nearest_spec)
+  endif
+endfunction
+
+" Run Last Spec File
+function! RunLastSpecFile()
+  if exists("s:last_spec_file")
+    call RunSpecs(s:last_spec_file)
+  endif
+endfunction
+
+" Run Entire Last Spec
+function! RunLastSpec()
+  if exists("s:last_spec_command")
+    call RunSpecs(s:last_spec_command)
+  endif
 endfunction
 
 " Spec Runner
@@ -152,4 +184,3 @@ function! RunSpecs(spec)
     execute substitute(g:spec_command, "{spec}", a:spec, "g")
   end
 endfunction
-
