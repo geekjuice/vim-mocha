@@ -1,6 +1,11 @@
 " Get file path
 let s:plugin_path = expand("<sfile>:p:h:h")
 
+let s:mocha_path = "./node_modules/.bin/_mocha"
+if !empty(glob("s:mocha_path"))
+  let s:mocha_path = "mocha"
+endif
+
 " Set Javascript
 function! s:SetJavascriptCommand()
   if !exists("g:mocha_js_command")
@@ -8,6 +13,16 @@ function! s:SetJavascriptCommand()
     call s:GUIRunning()
   else
     let g:spec_command = g:mocha_js_command
+  endif
+endfunction
+
+" Set Typescript
+function! s:SetTypescriptCommand()
+  if !exists("g:mocha_ts_command")
+    let s:cmd = s:mocha_path . " --ui bdd --require ts-node/register {spec}"
+    call s:GUIRunning()
+  else
+    let g:spec_command = g:mocha_ts_command
   endif
 endfunction
 
@@ -36,6 +51,8 @@ function! s:SetInitialSpecCommand()
   let l:filetype = system(l:spec)
   if l:filetype =~ 'js'
     call s:SetJavascriptCommand()
+  elseif l:filetype =~ 'ts'
+    call s:SetTypescriptCommand()
   elseif l:filetype =~ 'coffee'
     call s:SetCoffeescriptCommand()
   else
@@ -48,6 +65,9 @@ function! s:GetCorrectCommand()
   " Set default {mocha} command (javascript)
   if &filetype ==? 'javascript'
     call s:SetJavascriptCommand()
+  " Set default {mocha} command (typescript)
+  elseif &filetype ==? 'typescript'
+    call s:SetTypescriptCommand()
   " Set default {mocha} command (coffeescript)
   elseif &filetype ==? 'coffee'
     call s:SetCoffeescriptCommand()
@@ -124,7 +144,7 @@ endfunction
 " Current Spec File Name
 function! InSpecFile()
   " Not a js or coffee file
-  if match(expand('%'), '\v(.js|.coffee)$') == -1
+  if match(expand('%'), '\v(.ts|.js|.coffee)$') == -1
     return 0
   endif
   " Check for describe block
